@@ -111,10 +111,6 @@ depmap_similarity = ResembleDepmap(gdata, symbol = "id", score = "Score")
 ```
 
 ```{r, selection1, fig.height=4, fig.width=7}
-gdata$LogFDR = -log10(gdata$FDR)
-p1 = ScatterView(gdata, x = "Score", y = "LogFDR", label = "id", model = "volcano", top = 5)
-print(p1)
-
 p2 = VolcanoView(gdata, x = "Score", y = "FDR", Label = "id")
 print(p2)
 ```
