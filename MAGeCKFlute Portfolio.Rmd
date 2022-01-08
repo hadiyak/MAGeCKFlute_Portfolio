@@ -123,11 +123,6 @@ p1 = ScatterView(gdata, x = "Rank", y = "Score", label = "id",
 print(p1)
 ```
 
-```{r, fig.height=4, fig.width=2.5}
-ScatterView(gdata, x = "Rank", y = "Score", label = "id", 
-            auto_cut_y = TRUE, groups = c("top", "bottom"), 
-            ylab = "Log2FC", toplabels = c("EP300", "NF2"))
-```
 
 ```{r, warning=FALSE, fig.height=4, fig.width=6}
 ScatterView(gdata, x = "Score", y = "Rank", label = "id", 
