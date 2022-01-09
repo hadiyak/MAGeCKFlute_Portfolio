@@ -8,64 +8,86 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, library, eval=TRUE, message=FALSE}
+## **Contents:**
+**1:** Introduction
+
+**2:** Method and Materials
+
+**3:** Results and Discussion
+
+**4:** Conclusion
+
+**5:** References
+
+# **1 Introduction**
+
+CRISPR (clustered regularly interspaced short palindromic repeats) along with the nuclease Cas9 forms the CRISPR-Cas9 system which is a highly useful tool in targeted genome editing which allows for direct modifications to the gene of interest. In gene editing, removal, addition or alteration can be carried out in the target DNA sequence in order to gain the desired outcome (Cong et al. 2013; Mali et al. 2013).
+
+The CRISPR-Cas9 approach uses single-guide RNAs (sgRNAs) that lead the Cas9 enzyme to the gene of interest. The 5’ end of the sgRNAs contains a sequence of 18-20 nucleotides in length that corresponds to the target DNA. The Cas9 enzyme cleaves at the target site leading to formation of a double-stranded break (DSB) in the DNA. Eukaryotic cells deploy one of two major pathways to repair the DBS, these are the HDR (homology-directed repair) pathway or the NHEJ (non-homologous end-joining) repair pathway. NHEJ is the primary pathway in repair and has a high occurrence of indels (insertions/deletions) which in most cases leads to a gene knockout at the target site (Cong et al. 2013; Ran et al. 2013).
+
+An application of CRISPR-Cas9 technology is its use in genome-wide functional screening studies in which the functions of multiple genes can be investigated within a single experiment. CRISPR screening usually involves creating a substantial sgRNA (single-guide RNA) library that is used to target a range of genes in a particular cell line. CRISPR-Cas9 knockout screens utilise several sgRNAs to target each gene and the resulting phenotypic effects created by the edits are then analysed, which allows for a relationship between genotype and phenotype to be established (Shalem et al. 2014; Wang et al. 2014; Konermann et al. 2015).
+ 
+By knocking out numerous genes in a healthy cell line it allows for a better understanding of genes that are possibly involved in the development of a specific disease (So et al. 2019). If the same method is applied to a diseased cell line it can be used to identify which genes could be suitable targets for drugs in a clinical setting (Kurata et al. 2018). With CRISPR multiple sgRNA libraries are used to knockout numerous genes of interest within a single screen. In an experiment cells are cultured under different conditions and the sgRNAs that are integrated into the host cell genome are replicated during cell division of the host (Shalem et al. 2014). 
+
+CRISPR screens can be classed as either direct gene knockout (knockout screens) (Shalem et al. 2014) or through CRISPR activation or inhibition screens (CRISPRa/CRISPRi). The latter is achieved by perturbation of gene expression using a catalytically inactive Cas9 (dCas9) which fuses to activation or repression transcription domains, respectively (Gilbert et al. 2014).
+
+The development of the lentiviral delivery method allowed for the production of genome-scale CRISPR-Cas9 knockout (GeCKO) libraries to target genes. Positive and negative selection screening can be performed using these libraries (Shalem et al. 2014; Wang et al. 2014). Genome-wide CRISPR screens have been effective in identifying genes that function in metastasis (Chen et al. 2015), tumorigenesis (Hart et al. 2015; Wang et al. 2015) and also in genes associated with drug response (Kurata et al. 2016;  Han et al. 2017).
+The last step in CRISPR screening is to computationally evaluate the data produced. This requires the evaluation of significantly enriched or reduced sgRNAs which need to be traced back to their corresponding genes which subsequently determines possible genes and pathways that may play a role in the observed phenotype (Sharma and Petsalaki 2018).
+ 
+In 2014, Li et al. (2014) developed the MAGeCK (Model-based Analysis of Genome-wide CRISPR/Cas9 Knockout) method specifically for the analysis of CRISPR-Cas9 knockout screens. Since its development the MAGeCK algorithm has demonstrated robust results and high sensitivity over differing experimental conditions (Li et al. 2015). The two major functions of MAGeCK are MAGeCK RRA (robust rank aggregation) and MAGeCK MLE  (maximum-likelihood estimation) that can applied for the identification of CRISPR-Cas9 screen hits (Li et al. (2014). In 2015, Li et al. (2015) developed the visualisation tool VISPR which was integrated into the MAGeCK algorithm allowing users to inspect quality control, analysis and results in an interactive manner. MAGeCKFlute was developed in 2019 and combines both the MAGeCK and MAGeCK-VISPR algorithms which implement a negative binomial (NB) distribution to model variances of sgRNA read counts. Additionally, MAGeCKFlute incorporates further downstream analysis functions (Wang et al. 2019). MAGeCKFlute is capable of performing quality control (QC), normalisation, batch effect removal, gene hit identification as well as enrichment analysis for CRISPR-Cas9 screens (Wang et al. 2019). 
+
+# **2 Materials and Methods**
+
+## 2.1 Software
+
+The MAGeCKFlute package (Wang et al. 2019) used in this investigation was conducted in the latest version of R studio (4.1.2). 
+The MAGeCKFlute package can be found on Bioconductor : https://www.bioconductor.org/packages/release/bioc/html/MAGeCKFlute.html
+The MAGeCKFlute package can be installed on R studio via the BiocManager:
+```{r, eval=FALSE, echo=TRUE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("MAGeCKFlute")
+```
+
+## 2.2 Example datasets
+
+### 2.2.1 Quality control and MAGeCK RRA
+
+In this package both quality control and MAGeCK RRA performed data analysis on data collected from Toledo et al.’s (2015) study. The data from the study was generated from genome-wide CRISPR-Cas9 knockout (KO) screening conducted in patient-derived GMB (glioblastoma) stem-like cells (GSCs) to identify possible therapeutic targets. The sample data contained two conditions which were the time points day 0 (initial time point) and day 23 (23rd day after culture) of cell collection in the experiment. Toledo et al. (2015) also used two biological replicates (replicate 1 and replicate 2) per isolate. It should also be noted that for MAGeCK RRA the  dataset was in a FASTQ file format.
+ 
+### 2.2.2 MAGeCK MLE
+
+The example dataset used for MAGeCK MLE is derived from a CRISPR screen in a melanoma cancer cell line (A375) which was treated with the drug PLX (Vemurafenib). The data was collected at two time points which were days 7 and 14 after treatment and were subsequently compared to a control condition which were cells treated with DMSO. The example dataset used for MAGeCK MLE is derived from a CRISPR screen in a melanoma cancer cell line (A375) which was treated with the drug PLX (Vemurafenib) (Shalem et al. 2014). The data from Shalem et al.’s (2014) provided data containing three conditions: cells collected on day 0, DMSO treated and drug treated cells. In addition, the A375 dataset provided a raw read-count table for individual sgRNAs.
+
+## 2.3 Experimental design:
+
+### 2.3.1 Data input
+
+Data is input into MAGeCKFlute as either a FASTQ file or a raw read-count table where the columns contain samples and the rows contain sgRNAs. Typically CRISPR screen analysis involves both sgRNA-level and gene-level analysis. The sgRNA-level analysis models read counts of each sgRNA individually and determine both fold change and p-value for each sgRNA. Gene-level analysis combines the previously determined fold change and p-values by sgRNA-level analysis to determine unique gene hits.
+
+### 2.3.2 Quality control and generation of read count-table
+
+Before gene hits can be identified, the reads must be aligned to a known sgRNA library and the screen quality must also be evaluated. Both MAGeCK and MAGeCK-VISPR align sequence reads to a sgRNA library file, the read number of each sgRNA is counted and subsequently output quality control (QC) statistics. These QC statistics include: mapped read number; mapped reads percentage; the read count correlation between the samples, Gini index and number of missed sgRNAs. 
+
+### 2.3.3 Screen hit identification with RRA and MLE
+
+MAGeCK RRA (Robust Rank Aggregation) is one method that can be used to identify gene hits from a screening study. This function allows for two conditions within an experiment to be compared. MAGeCK RRA is able to uncover sgRNAs and their corresponding genes that are significantly selected across the two experimental conditions. The p-values gained from the negative binomial (NB) model are used by MAGeCK RRA to rank the sgRNAs. The α-RRA algorithm is used for the identification of positively or negatively selected genes. In addition, the RRA enrichment score is used by MAGeCK RRA to demonstrate significance of a gene. Alternatively, the MAGeCK MLE (maximum likelihood estimation) method can be implemented in the data analysis of screens that have several conditions. For example, in drug screens that typically include three conditions: day 0, the drug-treated condition and the control condition (e.g. DMSO treatment). In addition MAGeCK MLE also models sgRNA knockout efficiency that can possibly vary due to differing sequence contents as well chromatin structures. The MAGeCK MLE method calculates a beta score for every targeted gene which indicates the degree of selection. A positive score implies a positive selection and a negative beta score shows a negative selection from gene perturbation (Wang et al. 2019).
+
+
+#  Results and Discussion
+
+## 3.1 Section 1: Quality control
+
+In the case of low percentage of mapped reads, it could be an indication of errors in oligonucleotide synthesis, errors in sequencing or contamination of samples. A high mapping rate indicates that sample preparation and sequencing was successful. Also, if the percentage of missing sgRNAs is low, it is a good measure for good-quality samples. MAGeCK and MAGeCK-VISPR utilise the Gini index which measures the inequality between values of a variable which in the case of CRISPR screening is the evenness of sgRNA read counts. A higher Gini index value indicates that the data is spread out which in the case of the sgRNA read count would mean that its distribution is heterogeneous in the target genes. This may be due to a disproportion in CRISPR oligonucleotide synthesis, over-selection during CRISPR-screens etc (Wang et al. 2019).
+
+### 3.1.1 Load packages
+```{r, library, eval=TRUE}
 library(MAGeCKFlute)
 library(ggplot2)
 ```
 
-```{r, gene_summary}
-file1 = file.path(system.file("extdata", package = "MAGeCKFlute"),
-                  "testdata/rra.gene_summary.txt")
-gdata = read.delim(file1, check.names = FALSE)
-head(gdata)
-```
-
-```{r, sgrna}
-file2 = file.path(system.file("extdata", package = "MAGeCKFlute"),
-                  "testdata/rra.sgrna_summary.txt")
-sdata = read.delim(file2)
-head(sdata)
-```
-
-```{r, eval=FALSE}
-FluteRRA(file1, file2, proj="Test", organism="hsa", scale_cutoff = 1, outdir = "./")
-```
-
-```{r, eval=FALSE}
-FluteRRA(gdata, proj="Test", organism="hsa", incorporateDepmap = TRUE,
-         outdir = "./")
-```
-
-```{r, eval=FALSE}
-FluteRRA(gdata, proj="Test", organism="hsa", incorporateDepmap = TRUE,
-         omitEssential = TRUE, outdir = "./")
-```
-
-```{r, mledata}
-file3 = file.path(system.file("extdata", package = "MAGeCKFlute"),
-                  "testdata/mle.gene_summary.txt")
-# Read and visualize the file format
-gdata = read.delim(file3, check.names = FALSE)
-head(gdata)
-```
-
-```{r, readbeta}
-gdata = ReadBeta(file3)
-head(gdata)
-```
-
-```{r, FluteMLE, eval=FALSE}
-FluteMLE(file3, treatname="plx", ctrlname="dmso", proj="Test", organism="hsa")
-```
-
-```{r, eval=FALSE}
-FluteMLE(gdata, treatname="plx", ctrlname="Depmap", proj="PLX", organism="hsa", incorporateDepmap = TRUE)
-```
-
-```{r, eval=FALSE}
-FluteMLE(gdata, treatname="plx", ctrlname="Depmap", proj="PLX", organism="hsa", incorporateDepmap = TRUE, omitEssential = TRUE)
-```
-
+### 3.1.2 Input data
 ```{r, CheckCountSummary}
 file4 = file.path(system.file("extdata", package = "MAGeCKFlute"),
                   "testdata/countsummary.txt")
@@ -73,13 +95,26 @@ countsummary = read.delim(file4, check.names = FALSE)
 head(countsummary)
 ```
 
-```{r, CountQC, fig.height=5, fig.width=4.5}
-BarView(countsummary, x = "Label", y = "GiniIndex", ylab = "Gini index", main = "Evenness of sgRNA reads")
+### 3.1.3 Visualise QC results
 
+The MAGeCKcount function can be used for quality control analysis and outputs a count summar file. It summarises basic QC scores at a raw count level, including Gini index, map ratio (mapped and unmapped sgRNA reads), zero counts (missed sgRNAs) and NegSelQC.
+
+```{r, Gini, fig.height=5, fig.width=4.5}
+BarView(countsummary, x = "Label", y = "GiniIndex", ylab = "Gini index", main = "Evenness of sgRNA reads")
+```
+
+Figure 1. QC assessment of CRISPR-Cas9 screen data performed using MAGeCKcount. Samples obtained from genome-wide CRISPR screen conduction on patient derived GBM stem-like cells. The two sample conditions are represented as day 0 and day 23 in which day 0 is the initial sgRNA population and day 23 is the 23rd day of the cell culture. Samples also include two biological replicates (r1 and r2). 
+a) Gini index score measuring the eveness of sgRNA read depth for all four samples
+
+```{r, missed_reads, fig.height=5, fig.width=4.5}
 countsummary$Missed = log10(countsummary$Zerocounts)
 BarView(countsummary, x = "Label", y = "Missed", fill = "#394E80",
         ylab = "Log10 missed gRNAs", main = "Missed sgRNAs")
+```
 
+Figure 1b. Missed sgRNAs (zero count)
+
+```{r, map_ratio, fig.height=5, fig.width=4.5 }
 countsummary$Unmapped = countsummary$Reads - countsummary$Mapped
 gg = reshape2::melt(countsummary[, c("Label", "Mapped", "Unmapped")], id.vars = "Label")
 gg$variable = factor(gg$variable, levels = c("Unmapped", "Mapped"))
@@ -88,6 +123,13 @@ p = BarView(gg, x = "Label", y = "value", fill = "variable",
 p + scale_fill_manual(values = c("#9BC7E9", "#1C6DAB"))
 ```
 
+Figure 1c. Map ratio (percentages of mapped and unmapped reads)
+
+Gini index as part of the MAGeCKcount function measures the eveness of sgrNA read counts. In the case of Figure 1a, a Gini index score of around 0.1 for the initial samples (day 0) and around 0.2-0.3 for samples in negative selection screens is recommended. However, scores for the both replicates on day 0 and day 23 are much higher at a score of more than 0.7 for all samples. This indicates that the level of evenness of the count distribution is very low. This may be due to a low efficiency of viral transfection or overselection during the CRISPR screening experiment. Mapped read percentage is a good measure of sample quality. Low mapped reads could indicate sample contamination, errors during sequencing or errors in oligonucleotide synthesis.It is recommended that the calculated mapped read percentage is over 65%. It can be seen from Figure 1c that the mapped reads for both replicates on day 0 are above 65%, however, on day 23 they are below 65%.
+
+## 3.2 Section 2 : Downstream analysis of MAGeCK RRA
+
+### 3.2.1 Read required data
 ```{r}
 file1 = file.path(system.file("extdata", package = "MAGeCKFlute"),
                   "testdata/rra.gene_summary.txt")
@@ -100,21 +142,37 @@ sdata = ReadsgRRA(file2)
 head(sdata)
 ```
 
+### 3.2.2 CRISPR screen and Depmap screen similarity
 ```{r, depmap, eval=FALSE}
 depmap_similarity = ResembleDepmap(gdata, symbol = "id", score = "Score")
 ```
 
+### 3.2.3 Omit common essential genes
 ```{r, omitssential, eval=FALSE}
 gdata = OmitCommonEssential(gdata)
 sdata = OmitCommonEssential(sdata, symbol = "Gene")
 depmap_similarity = ResembleDepmap(gdata, symbol = "id", score = "Score")
 ```
 
+### 3.2.4 Visualisation of positive and negative selections
+
+#### 3.2.4.1 Volcano plot
+
+The use of the volcano plot in MAGeCK RRA allows for the visualisation of genes that are statistically significant with large fold changes. It represents the differential expression of genes within the CRISPR screen and is useful for the identification of genes that may have biological significance. 
+
 ```{r, selection1, fig.height=4, fig.width=7}
 p2 = VolcanoView(gdata, x = "Score", y = "FDR", Label = "id")
 print(p2)
 ```
 
+Figure 2. Visualisation of upregulated and downregulated genes in a volcano scatterplot performed using the volcanoview function as part of MAGeCK RRA downstream analysis. 
+ 
+Figure 2 shows that genes: RPL, LAS1, CTDP1, SRSF10 and SFS1 are downregulated and genes CREBBP and EP300 are upregulated which indicates that these genes may be biologically significant and a possible therapeutic target for GBM.
+
+
+#### 3.2.4.2. Rank plot
+
+Genes are ranked based on their beta score deviation and meaningful genes are labelled at the top and bottom of the rank plot graph. The function of rankiew therefore allows for the visualisation of genes that were negatively and positively selected within the dataset. 
 
 ```{r, rankrra2, fig.height=5, fig.width=6}
 geneList= gdata$Score
@@ -123,11 +181,26 @@ p2 = RankView(geneList, top = 5, bottom = 10) + xlab("Log2FC")
 print(p2)
 ```
 
+Figure 3. Visualisation of positively and negatively selected genes performed using the rankreview function. Samples obtained from genome-wide CRISPR screen conducted on patient derived GBM stem-like cells for therapeutic drug targets.
+ 
+Figure 3 shows possibly meaningful genes from the CRISPR-screen experiment which include the genes c and PSMA. These genes could play a significant role in cancer drug therapy as possible targets. 
+
+#### 3.2.4.3 sgRankView
 
 ```{r, sgRNARank, fig.height=4, fig.width=7}
 p2 = sgRankView(sdata, top = 4, bottom = 4)
 print(p2)
 ```
+
+Figure 4. Visualisation of ranked sgRNAs targeting the top selected genes within the CRISPR screen.
+ 
+The sgRankView function can be used to visualise rank of sgRNAs that target the top selected cells. The results from Figure 4 show that genes SCN10A, C16orf72, EP300, and CREBBP are essential genes.
+
+### 3.2.5 Enrichment analysis
+
+The MAGeCKFlute approach uses three enrichment analysis methods which include, Hypergeometric Test (HGT), Overrepresentation Test (ORT) and Gene Set Enrichment Analysis (GSEA).
+
+#### 3.2.5.1 Visualisation of enrichment results
 
 ```{r, enrich_rra,include=FALSE, fig.height=4, fig.width=9}
 geneList= gdata$Score
@@ -140,6 +213,14 @@ enrich = EnrichAnalyzer(geneList = geneList[geneList>0.5],
 EnrichedView(enrich, mode = 1, top = 5)
 ```
 
+Figure 5. Enrichment analysis. Visualisation of the top 5 enriched KEGG pathways with positively selected genes. The p-values were based on hypergeometric distribution in which the lower the p-value the higher the enrichment of the gene. Red dots within the dot plot represent the genes' high enrichment within the sample.
+
+It should be noted that the size of the circle in the dot plot indicates the amount of enriched genes for a particular function. Therefore, the larger the circle (and higher the NES score) the more genes enriched in the corresponding function. In Figure 5 the largest circle is found to be associated with a high amount of genes enriched in the function of prostate cancer. 
+
+## 3.3 Section 3: Downstream analysis of MAGeCK MLE
+
+### 3.3.1 Read required data
+
 ```{r, ReadBeta}
 file3 = file.path(system.file("extdata", package = "MAGeCKFlute"),
                   "testdata/mle.gene_summary.txt")
@@ -148,6 +229,8 @@ gdata = ReadBeta(file3)
 head(gdata)
 ```
 
+### 3.3.2 Normalisation of beta scores
+
 ```{r, NormalizeBeta}
 ctrlname = "dmso"
 treatname = "plx"
@@ -155,10 +238,24 @@ gdata_cc = NormalizeBeta(gdata, samples=c(ctrlname, treatname), method="cell_cyc
 head(gdata_cc)
 ```
 
+### 3.3.3 Distribution of all gene beta scores
+
 ```{r, DistributeBeta, fig.height=5, fig.width=8}
 DensityView(gdata_cc, samples=c(ctrlname, treatname))
+```
+
+Figure 6. Downstream analysis performed with MAGeCKFlute MLE on genome-wide CRISPR screen of (A375) melanoma cancer cell lines that were treated with PLX.
+a) Beta score distribution of treatment sample (PLX) and the control sample (DMSO) using DensityView function
+
+```{r, Consistency_view, fig.height=5, fig.width=8}
 ConsistencyView(gdata_cc, ctrlname, treatname)
 ```
+
+Figure 6b. Scatterplot presenting beta scores for treatment (PLX) and control (DMSO) samples using ConsistencyView function.
+ 
+MAGeCK MLE was used to normalise beta score results which were then evaluated using the functions DensityView (Fig. 6a) and ConsistencyView (Fig. 6b). From the results it can be seen that normalisation of beta scores using the MAGeCK MLE function worked well as beta scores from the different conditions had a similar distribution which can be seen from Figures 6a and 6b.
+
+### 3.3.4 Positive selection and negative selection
 
 ```{r, selection2, fig.height=5, fig.width=7}
 gdata_cc$Control = rowMeans(gdata_cc[,ctrlname, drop = FALSE])
@@ -168,11 +265,21 @@ p1 = ScatterView(gdata_cc, "Control", "Treatment", groups = c("top", "bottom"), 
 print(p1)
 ```
 
+Figure 6c. Scatterplot of beta scores for treatment (PLX) and control (DMSO) sample. Pink dots in the scatterplot represent genes with a beta score that increased after treatment. Blue dots represented genes with a beta score that declined after treatment. 
+ 
+Results demonstrated the ability of MAGeCK MLE to analyse two conditions from screening tests and provide a scatterplot with both positive and negative selection (Figure 6c).
+
+#### 3.3.4.1 Rank plot
+
 ```{r, warning=FALSE, rank, fig.height=5, fig.width=7}
 rankdata = gdata_cc$Treatment - gdata_cc$Control
 names(rankdata) = gdata_cc$Gene
 RankView(rankdata)
 ```
+
+Figure 6d. Rank plot presenting genes based on differential beta score in which control beta score is subtracted from the treatment beta score.
+
+#### 3.3.4.2 Nine-square scatterplot
 
 ```{r, fig.height=6, fig.width=8}
 p2 = SquareView(gdata_cc, label = "Gene", 
@@ -181,18 +288,86 @@ p2 = SquareView(gdata_cc, label = "Gene",
 print(p2)
 ```
 
-```{r, warning=FALSE, EnrichSquare, fig.height=4, fig.width=9}
-Square9 = p1$data
-idx=Square9$group=="topcenter"
-geneList = Square9$Diff
-names(geneList) = Square9$Gene[idx]
-universe = Square9$Gene
+Figure 6e. Nine-square scatterplot to identify treatment-associated genes. The numbers in red indicated the amount of genes classified in each group. The top five labelled genes for each group were selected depending on the highest absolute value of the differential beta score calculated.
 
-kegg1 = EnrichAnalyzer(geneList = geneList, universe = universe)
-EnrichedView(kegg1, top = 6, bottom = 0)
-```
+Figure 6e displays treatment related genes, the plot shows that genes in group 1 (green group) are found to be highly negatively selected in the control samples but in the treatment samples they are weakly positively or negatively selected. Genes in group 1 (green group) are found to be strongly negatively selected in the control samples but in the treatment samples they are weakly positively or negatively selected. Group 2 (orange group) has genes that in the control sample are weakly selected but in the treatment sample have strong positive selection. The genes in group 3 (blue group) indicate a strong positive selection in the control and a weak selection in the treatment sample. In group 4 (purple group), genes are weakly selected in the control and are highly negatively selected in the treatment sample. Data from Figure 6e allows for the identification of treatment related genes using a nine-square scatter plot. It was found that genes in group 1 are possibly located in pathways that are targeted by the treatment drug PLX. For group 2, loss of these genes play a possible role in drug resistance. Genes in group 4 may possibly be synthetically lethal when combined with PLX. 
 
-```{r, pathview2, eval=FALSE}
-genedata = gdata_cc[, c("Control","Treatment")]
-arrangePathview(genedata, pathways = "hsa01521", organism = "hsa", sub = NULL)
-```
+## 3.4 Computational evaluation
+
+MAGeCKFlute differs from other presently available tools due its extensive pipeline, containing a variety of functions for CRISPR screen data analysis (Wang et al. 2019). The MAGeCK approach is highly sensitive and also has a high level of control of the false discovery rate (FDR). In addition, MAGeCK’s results are robust over varying sequencing depths and number of sgRNAs per gene.
+
+### 3.4.1 BAGEL vs. MAGeCK
+
+BAGEL (Bayesian Analysis of Gene EssentiaLity) is a computational method used for analysis and identification of essential genes from CRISPR gene knockout screens. A paper published by Hart and Moffat (2016) compared BAGEL and MAGeCK. Results from both approaches were compared at the final time point from a knockout screen as well as plotting precision-recall curves. Hart and Moffat (2016) found that BAGEL had surpassed MAGeCK as it had a higher recall,additionally, they found that MAGeCK greatly lacked sensitivity. The differing sensitivities between both algorithms is most likely due to the variable effectiveness of CRISPR reagents (Hart and Moffat 2016).
+
+### 3.4.2 Comparison of algorithms for CRISPR screens
+
+It should be noted that although algorithms may have not been designed specifically for CRISPR-Cas9 knockout screens some existing algorithms can be applied to identify greatly selected sgRNAs and genes. Some examples are DESeq (Anders and Huber 2010), baySeq (Hardcastle and Kelly 2010) and edgeR (Robinson et al. 2010) which are frequently used for differential RNA-Seq expression analysis (Li et al 2014). Although the aforementioned algorithms can assess the statistical significance of hits in CRISPR-Cas9 knockout screens it can only be carried out at the sgRNA level. In addition algorithms, RIGER (RNAi gene enrichment ranking) (Luo et al. 2008) and RSA (redundant siRNA activity) (König et al. 2007) that are intended for gene ranking in both genome-scale short hairpin RNA (shRNA) or short interfering RNA (siRNA) can also be used for CRISPR screening data. Although these methods can be used for CRISPR-Cas9 knockout screen data, a preferred algorithm would be one that prioritises sgRNAs, in addition to gene and pathway hits from HTS data. Therefore, the MAGeCKFlute approach currently is best suited for CRISPR-Cas9 knockout screens analysis.
+
+A study by Li et al. (2014) compared MAGeCK with other methods, DESeq and edgeR, that also used NB models for the statistical assessment of sequencing read counts. MAGeCK and DESeq have similar variance models, whereas edgeR has lower variance estimation when there are low read counts. Additionally, Li et al. (2014) also evaluated the FDR and found that MAGeCK had better identification of significantly selected sgRNAs compared to edgeR and DESeq. Additionally, Li et al. (2014) compared the performance of MAGeCK to two RNAi screening algorithms, RIGER and RSA, at the sgRNA and gene level. In the case of MAGeCK, this algorithm ranks sgRNAs depending on their negative binomial (NB) p-values, while RIGER ranks based on signal-to-noise ratio. The RSA algorithm ranks sgRNAs on their fold change among treatment and control conditions, however, this approach introduces bias to sgRNAs with lower read counts (Li et al. 2014). It was found that at the gene level, RIGER had lower sensitivity and overlooked a number of essential genes, for example ribosomal genes, in two negative screening studies. The RSA algorithm was found to have low specificity and reported high numbers of genes, despite comparing replicates or controls. MAGeCK, on the other hand, detected significant genes during comparisons of treatments with control conditions and reported few false positives when comparing replicates or controls.
+
+### 3.4.3 Limitations of MAGeCK and CRISPR screens
+
+It should be noted that although MAGeCKFlute considers several differing approaches to perform functional enrichment analysis such as clusterProfiler and GSEA (gene set enrichment analysis), at-present it is unclear which model is best suited for analysis screening results (Wang et al. 2019). Additionally, issues with screen quality will lead to inaccuracies in hit identification. It is therefore recommended that samples should have reduced culture time and lower-dose drug treatment due to its effects on the identification of negatively selected hits (Wang et al. 2019).
+
+### 3.4.4 Recommendations for experimental design
+
+Simulations undertaken by Bodapati et al. (2020) suggested that MAGeCK RRA is a robust function that works well in all cases. Therefore in the review by Bodapati et al. (2020) it was suggested that for downstream analysis, researchers should use MAGeCK RRA. It should be noted that in screens such as CRISPRa and CRISPRi that analyse complex phenotypes, MAGeCK RRA has issues in identifying hit genes and in some cases returning no hit genes. As it is the only method that considers this issue, Bodapati et al. (2020) therefore suggested the method CRISPRhieRmix for this analysis. Along with JACKS and CERES, MAGeCK MLE was found to be a suitable option in studies with multiple screens that aim to identify both cell-type specific hit genes and also common hit genes (Bodapati et al. 2020).
+
+# 4 Conlusion
+
+Overall, results produced by MAGeCKFlute using various datasets for analysis have demonstrated its usefulness as a computational analysis tool for CRISPR-Cas9 knockout screens. Further research must be conducted to gain a better understanding of which approach is best for the analysis of CRISPR screens due to conflicting views.
+In addition, more research needs to be done using the MAGeCK pipeline in order to see its efficiency in various real world research applications.
+
+
+# 5 References
+
+Anders, S. and Huber, W. (2010) Differential expression analysis for sequence count data. Genome Biology 11 (10), R106.
+Bodapati, S., Daley, T. P., Lin, X., Zou, J. and Qi, L. S. (2020) A benchmark of algorithms for the analysis of pooled CRISPR screens. Genome biology 21 (1), 62-62.
+
+Chen, S., Sanjana, Neville E., Zheng, K., Shalem, O., Lee, K., Shi, X., Scott, David A., Song, J., Pan, Jen Q., Weissleder, R., Lee, H., Zhang, F. and Sharp, Phillip A. (2015) Genome-wide CRISPR Screen in a Mouse Model of Tumor Growth and Metastasis. Cell 160 (6), 1246-1260.
+Cong, L., Ran, F. A., Cox, D., Lin, S., Barretto, R., Habib, N., Hsu, P. D., Wu, X., Jiang, W., Marraffini, L. A. and Zhang, F. (2013) Multiplex genome engineering using CRISPR/Cas systems. Science (New York, N.Y.) 339 (6121), 819-823.
+
+Gilbert, Luke A., Horlbeck, Max A., Adamson, B., Villalta, Jacqueline E., Chen, Y., Whitehead, Evan H., Guimaraes, C., Panning, B., Ploegh, Hidde L., Bassik, Michael C., Qi, Lei S., Kampmann, M. and Weissman, Jonathan S. (2014) Genome-Scale CRISPR-Mediated Control of Gene Repression and Activation. Cell 159 (3), 647-661.
+
+Han, K., Jeng, E. E., Hess, G. T., Morgens, D. W., Li, A. and Bassik, M. C. (2017) Synergistic drug combinations for cancer identified in a CRISPR screen for pairwise genetic interactions. Nature Biotechnology 35 (5), 463-474.
+Hardcastle, T. J. and Kelly, K. A. (2010) baySeq: Empirical Bayesian methods for identifying differential expression in sequence count data. BMC Bioinformatics 11 (1), 422.
+
+Hart, T., Chandrashekhar, M., Aregger, M., Steinhart, Z., Brown, Kevin R., MacLeod, G., Mis, M., Zimmermann, M., Fradet-Turcotte, A., Sun, S., Mero, P., Dirks, P., Sidhu, S., Roth, Frederick P., Rissland, Olivia S., Durocher, D., Angers, S. and Moffat, J. (2015) High-Resolution CRISPR Screens Reveal Fitness Genes and Genotype-Specific Cancer Liabilities. Cell 163 (6), 1515-1526.
+
+Hart, T. and Moffat, J. (2016) BAGEL: a computational framework for identifying essential genes from pooled library screens. BMC Bioinformatics 17 (1), 164.
+
+Konermann, S., Brigham, M. D., Trevino, A. E., Joung, J., Abudayyeh, O. O., Barcena, C., Hsu, P. D., Habib, N., Gootenberg, J. S., Nishimasu, H., Nureki, O. and Zhang, F. (2015) Genome-scale transcriptional activation by an engineered CRISPR-Cas9 complex. Nature 517 (7536), 583-588.
+
+Kurata, M., Rathe, S. K., Bailey, N. J., Aumann, N. K., Jones, J. M., Veldhuijzen, G. W., Moriarity, B. S. and Largaespada, D. A. (2016) Using genome-wide CRISPR library screening with library resistant DCK to find new sources of Ara-C drug resistance in AML. Scientific Reports 6 (1), 36199.
+
+Kurata, M., Yamamoto, K., Moriarity, B. S., Kitagawa, M. and Largaespada, D. A. (2018) CRISPR/Cas9 library screening for drug target discovery. Journal of human genetics 63 (2), 179-186.
+
+König, R., Chiang, C.-y., Tu, B. P., Yan, S. F., DeJesus, P. D., Romero, A., Bergauer, T., Orth, A., Krueger, U., Zhou, Y. and Chanda, S. K. (2007) A probability-based approach for the analysis of large-scale RNAi screens. Nature Methods 4 (10), 847-849.
+
+Li, W., Köster, J., Xu, H., Chen, C.-H., Xiao, T., Liu, J. S., Brown, M. and Liu, X. S. (2015) Quality control, modeling, and visualization of CRISPR screens with MAGeCK-VISPR. Genome biology 16, 281-281.
+
+Li, W., Xu, H., Xiao, T., Cong, L., Love, M. I., Zhang, F., Irizarry, R. A., Liu, J. S., Brown, M. and Liu, X. S. (2014) MAGeCK enables robust identification of essential genes from genome-scale CRISPR/Cas9 knockout screens. Genome biology 15 (12), 554-554.
+
+Luo, B., Cheung, H. W., Subramanian, A., Sharifnia, T., Okamoto, M., Yang, X., Hinkle, G., Boehm, J. S., Beroukhim, R., Weir, B. A., Mermel, C., Barbie, D. A., Awad, T., Zhou, X., Nguyen, T., Piqani, B., Li, C., Golub, T. R., Meyerson, M., Hacohen, N., Hahn, W. C., Lander, E. S., Sabatini, D. M. and Root, D. E. (2008) Highly parallel identification of essential genes in cancer cells. Proceedings of the National Academy of Sciences of the United States of America 105 (51), 20380-20385.
+
+Mali, P., Yang, L., Esvelt, K. M., Aach, J., Guell, M., DiCarlo, J. E., Norville, J. E. and Church, G. M. (2013) RNA-guided human genome engineering via Cas9. Science (New York, N.Y.) 339 (6121), 823-826.
+
+Ran, F. A., Hsu, P. D., Wright, J., Agarwala, V., Scott, D. A. and Zhang, F. (2013) Genome engineering using the CRISPR-Cas9 system. Nature protocols 8 (11), 2281-2308.
+
+Robinson, M. D., McCarthy, D. J. and Smyth, G. K. (2010) edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics 26 (1), 139-140.
+
+Shalem, O., Sanjana, N. E., Hartenian, E., Shi, X., Scott, D. A., Mikkelson, T., Heckl, D., Ebert, B. L., Root, D. E., Doench, J. G. and Zhang, F. (2014) Genome-scale CRISPR-Cas9 knockout screening in human cells. Science (New York, N.Y.) 343 (6166), 84-87.
+Sharma, S. and Petsalaki, E. (2018) Application of CRISPR-Cas9 Based Genome-Wide Screening Approaches to Study Cellular Signalling Mechanisms. International journal of molecular sciences 19 (4), 933.
+
+So, R. W. L., Chung, S. W., Lau, H. H. C., Watts, J. J., Gaudette, E., Al-Azzawi, Z. A. M., Bishay, J., Lin, L. T.-W., Joung, J., Wang, X. and Schmitt-Ulms, G. (2019) Application of CRISPR genetic screens to investigate neurological diseases. Molecular Neurodegeneration 14 (1), 41.
+
+Toledo, Chad M., Ding, Y., Hoellerbauer, P., Davis, Ryan J., Basom, R., Girard, Emily J., Lee, E., Corrin, P., Hart, T., Bolouri, H., Davison, J., Zhang, Q., Hardcastle, J., Aronow, Bruce J., Plaisier, Christopher L., Baliga, Nitin S., Moffat, J., Lin, Q., Li, X.-N., Nam, D.-H., Lee, J., Pollard, Steven M., Zhu, J., Delrow, Jeffery J., Clurman, Bruce E., Olson, James M. and Paddison, Patrick J. (2015) Genome-wide CRISPR-Cas9 Screens Reveal Loss of Redundancy between PKMYT1 and WEE1 in Glioblastoma Stem-like Cells. Cell Reports 13 (11), 2425-2439.
+
+Wang, B., Wang, M., Zhang, W., Xiao, T., Chen, C.-H., Wu, A., Wu, F., Traugh, N., Wang, X., Li, Z., Mei, S., Cui, Y., Shi, S., Lipp, J. J., Hinterndorfer, M., Zuber, J., Brown, M., Li, W. and Liu, X. S. (2019) Integrative analysis of pooled CRISPR genetic screens using MAGeCKFlute. Nature Protocols 14 (3), 756-780.
+
+Wang, T., Birsoy, K., Hughes Nicholas, W., Krupczak Kevin, M., Post, Y., Wei Jenny, J., Lander Eric, S. and Sabatini David, M. (2015) Identification and characterization of essential genes in the human genome. Science 350 (6264), 1096-1101.
+Wang, T., Wei, J. J., Sabatini, D. M. and Lander, E. S. (2014) Genetic screens in human cells using the CRISPR-Cas9 system. Science (New York, N.Y.) 343 (6166), 80-84.
+
+
+
